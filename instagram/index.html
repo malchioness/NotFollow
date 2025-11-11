@@ -95,7 +95,7 @@
           accept=".json"
           type="file"
         />
-        </div>
+      </div>
       <div class="mb-2">
         <button
           type="button"
@@ -156,186 +156,140 @@
 
     <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.6/lib/index.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
+    
     <script>
-      let followersData = [];
-      let followingData = null; // <-- PERBAIKAN: Diubah dari array [] menjadi null
-
-      document
-        .getElementById("followersFile")
-        .addEventListener("change", function (event) {
-          followersData = []; // Reset array setiap kali file baru dipilih
-          const files = event.target.files;
-          if (!files.length) return;
-
-          const readers = [];
-          for (const file of files) {
-            readers.push(
-              new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                  try {
-                    const parsedData = JSON.parse(e.target.result);
-                    resolve(parsedData);
-                  } catch (err) {
-                    reject(err);
-                  }
-                };
-                reader.onerror = reject;
-                reader.readAsText(file);
-              })
-            );
-          }
-
-          Promise.all(readers)
-            .then((results) => {
-              followersData = results; // results adalah array dari [datafile1, datafile2, ...]
-              console.log("Followers Data:", followersData);
-              document.getElementById("error-message").textContent = "";
-            })
-            .catch((error) => {
-              console.error("Error parsing one or more followers files:", error);
-              document.getElementById("error-message").textContent =
-                "Error parsing followers file. Please make sure it is in the correct format.";
-            });
-        });
-
-      document
-        .getElementById("followingFile")
-        .addEventListener("change", function (event) {
-          followingData = null; // Reset data
-          const file = event.target.files[0]; // <-- PERBAIKAN: Hanya ambil file PERTAMA
-          if (!file) return; // Jika pengguna batal memilih file
-
+      // Fungsi helper untuk membaca satu file sebagai teks
+      function readFileAsText(file) {
+        return new Promise((resolve, reject) => {
           const reader = new FileReader();
-          reader.onload = function (event) {
-            try {
-              followingData = JSON.parse(event.target.result); // <-- PERBAIKAN: Langsung simpan objeknya
-              console.log("Following Data:", followingData);
-              document.getElementById("error-message").textContent = "";
-            } catch (error) {
-              console.error("Error parsing following file:", error);
-              document.getElementById("error-message").textContent =
-                "Error parsing following file. Please make sure it is in the correct format.";
-            }
-          };
+          reader.onload = (event) => resolve(event.target.result);
+          reader.onerror = (error) => reject(error);
           reader.readAsText(file);
         });
+      }
 
-      function processFiles() {
-        if (!followersData.length || !followingData) {
-          document.getElementById("error-message").textContent =
+      // Fungsi utama yang dipanggil oleh tombol "Check Non-Followers"
+      async function processFiles() {
+        const errorElement = document.getElementById("error-message");
+        const resultList = document.getElementById("resultList");
+        const totalElement = document.getElementById("total-to-unfollow");
+
+        // Kosongkan hasil sebelumnya
+        errorElement.textContent = "";
+        resultList.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center">Loading...</td></tr>';
+        totalElement.textContent = "Processing...";
+
+        // 1. Ambil file dari input elements
+        const followersFiles = document.getElementById("followersFile").files;
+        const followingFile = document.getElementById("followingFile").files[0];
+
+        // 2. Validasi input
+        if (followersFiles.length === 0 || !followingFile) {
+          errorElement.textContent =
             "Please upload both followers files and the following file.";
-          console.error("Invalid data:", {
-            followersData,
-            followingData,
-          });
+          resultList.innerHTML = "";
+          totalElement.textContent = "—";
           return;
         }
 
-        const followersSet = new Set();
         try {
-          followersData.forEach((data) => {
-            // data adalah isi satu file (yang merupakan array)
+          // 3. Baca semua file followers (secara paralel)
+          const followersPromises = Array.from(followersFiles).map(readFileAsText);
+          const followersJsonStrings = await Promise.all(followersPromises);
+
+          // 4. Baca file following
+          const followingJsonString = await readFileAsText(followingFile);
+
+          // --- File selesai dibaca, sekarang kita proses datanya ---
+
+          // 5. Proses Followers
+          const followersSet = new Set();
+          followersJsonStrings.forEach((jsonString) => {
+            const data = JSON.parse(jsonString); // data adalah array [...]
             data.forEach((f) => {
-              if (
-                f && // <-- PERBAIKAN: Cek jika f tidak null
-                f.string_list_data &&
-                f.string_list_data[0] &&
-                f.string_list_data[0].value
-              ) {
-                followersSet.add(f.string_list_data[0].value);
-              } else {
-                // Jangan error jika null, cukup log jika perlu
-                if (f) {
-                  console.warn("Invalid follower entry structure:", f);
-                }
+              // ======================================================
+              // PERBAIKAN DI SINI: Gunakan f.title
+              // ======================================================
+              if (f && f.title) {
+                followersSet.add(f.title);
               }
             });
           });
-        } catch (e) {
-          console.error("Error processing followers list:", e);
-          document.getElementById("error-message").textContent =
-            "Error processing followers file. Make sure you uploaded the correct files.";
-          return;
-        }
 
-        const followingList = [];
-        try {
-          // PERBAIKAN: followingData sekarang adalah OBJEK, bukan array
-          // Pastikan 'relationships_following' ada
+          // 6. Proses Following
+          const followingList = [];
+          const followingData = JSON.parse(followingJsonString); // data adalah objek { relationships_following: [...] }
+
           if (
             !followingData.relationships_following ||
             !Array.isArray(followingData.relationships_following)
           ) {
             throw new Error(
-              "Invalid following.json structure. 'relationships_following' key not found or not an array."
+              "Invalid following.json structure. 'relationships_following' key not found."
             );
           }
 
           followingData.relationships_following.forEach((f) => {
-            if (
-              f && // <-- PERBAIKAN: Cek jika f tidak null
-              f.string_list_data &&
-              f.string_list_data[0] &&
-              f.string_list_data[0].value
-            ) {
+            // ======================================================
+            // PERBAIKAN DI SINI: Gunakan f.title
+            // ======================================================
+            const username = f ? f.title : null;
+            const href = (f && f.string_list_data && f.string_list_data[0]) ? f.string_list_data[0].href : "#";
+
+            if (username) {
               followingList.push({
-                username: f.string_list_data[0].value,
-                href: f.string_list_data[0].href,
+                username: username,
+                href: href,
               });
-            } else {
-              if (f) {
-                console.warn("Invalid following entry structure:", f);
-              }
             }
           });
-        } catch (e) {
-          console.error("Error processing following list:", e);
-          document.getElementById("error-message").textContent =
-            "Error processing following file. Make sure you uploaded the correct following.json file.";
-          return;
-        }
 
-        const nonFollowers = followingList.filter(
-          (f) => !followersSet.has(f.username)
-        );
+          // 7. Bandingkan!
+          const nonFollowers = followingList.filter(
+            (f) => !followersSet.has(f.username)
+          );
 
-        console.log("Non-Followers:", nonFollowers);
+          console.log("Followers Set Size:", followersSet.size);
+          console.log("Following List Size:", followingList.length);
+          console.log("Non-Followers Found:", nonFollowers.length);
 
-        const totalToUnfollow = nonFollowers.length;
-        document.getElementById(
-          "total-to-unfollow"
-        ).textContent = `To unfollow: ${totalToUnfollow}`;
+          // 8. Tampilkan hasil
+          totalElement.textContent = `To unfollow: ${nonFollowers.length}`;
+          resultList.innerHTML = ""; // Hapus 'Loading...'
 
-        const resultList = document.getElementById("resultList");
-        resultList.innerHTML = "";
-        if (nonFollowers.length === 0) {
-          resultList.innerHTML =
-            '<tr><td colspan="4" class="px-6 py-4 border-b border-gray-200 text-center bg-green-100 text-green-800">Everyone you follow follows you back.</td></tr>';
-        } else {
-          nonFollowers.forEach((user, index) => {
-            const tr = document.createElement("tr");
-            tr.className =
-              "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600";
-            tr.innerHTML = `
-                                <td class="px-6 py-4">${index + 1}</td>
-                                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">${
-                                  user.username
-                                }</td>
-                                <td class="px-6 py-4">
-                                    <a href="${
-                                      user.href
-                                    }" target="_blank" class="text-blue-600 hover:underline" onclick="handleLinkClick(${index})">View Profile</a>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center">
-                                        <input id="checkbox-${index}" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" onclick="toggleChecked(this, ${index})">
-                                        <label for="checkbox-${index}" class="ml-2 text-gray-900 dark:text-gray-300">Unfollowed</label>
-                                    </div>
-                                </td>
-                            `;
-            resultList.appendChild(tr);
-          });
+          if (nonFollowers.length === 0) {
+            resultList.innerHTML =
+              '<tr><td colspan="4" class="px-6 py-4 border-b border-gray-200 text-center bg-green-100 text-green-800">Everyone you follow follows you back.</td></tr>';
+          } else {
+            nonFollowers.forEach((user, index) => {
+              const tr = document.createElement("tr");
+              tr.className =
+                "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600";
+              tr.innerHTML = `
+                  <td class="px-6 py-4">${index + 1}</td>
+                  <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">${
+                    user.username
+                  }</td>
+                  <td class="px-6 py-4">
+                      <a href="${
+                        user.href
+                      }" target="_blank" class="text-blue-600 hover:underline" onclick="handleLinkClick(${index})">View Profile</a>
+                  </td>
+                  <td class="px-6 py-4">
+                      <div class="flex items-center">
+                          <input id="checkbox-${index}" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" onclick="toggleChecked(this, ${index})">
+                          <label for="checkbox-${index}" class="ml-2 text-gray-900 dark:text-gray-300">Unfollowed</label>
+                      </div>
+                  </td>
+              `;
+              resultList.appendChild(tr);
+            });
+          }
+        } catch (error) {
+          console.error("Error processing files:", error);
+          errorElement.textContent = `An error occurred: ${error.message}. Please check your files and try again.`;
+          resultList.innerHTML = "";
+          totalElement.textContent = "Error";
         }
       }
 
@@ -354,7 +308,7 @@
         toggleChecked(checkbox, index);
       }
 
-      // ... (Kode theme toggle Anda sama, tidak perlu diubah) ...
+      // --- Theme Toggle Logic (Tidak diubah) ---
       if (
         localStorage.getItem("color-theme") === "dark" ||
         (!("color-theme" in localStorage) &&
@@ -364,14 +318,12 @@
       } else {
         document.documentElement.classList.remove("dark");
       }
-
       var themeToggleDarkIcon = document.getElementById(
         "theme-toggle-dark-icon"
       );
       var themeToggleLightIcon = document.getElementById(
         "theme-toggle-light-icon"
       );
-
       if (
         localStorage.getItem("color-theme") === "dark" ||
         (!("color-theme" in localStorage) &&
@@ -381,13 +333,10 @@
       } else {
         themeToggleDarkIcon.classList.remove("hidden");
       }
-
       var themeToggleBtn = document.getElementById("theme-toggle");
-
       themeToggleBtn.addEventListener("click", function () {
         themeToggleDarkIcon.classList.toggle("hidden");
         themeToggleLightIcon.classList.toggle("hidden");
-
         if (localStorage.getItem("color-theme")) {
           if (localStorage.getItem("color-theme") === "light") {
             document.documentElement.classList.add("dark");
