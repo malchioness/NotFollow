@@ -208,10 +208,15 @@
             const data = JSON.parse(jsonString); // data adalah array [...]
             data.forEach((f) => {
               // ======================================================
-              // PERBAIKAN DI SINI: Gunakan f.title
+              // PERBAIKAN: Gunakan f.string_list_data[0].value
               // ======================================================
-              if (f && f.title) {
-                followersSet.add(f.title);
+              if (
+                f &&
+                f.string_list_data &&
+                f.string_list_data[0] &&
+                f.string_list_data[0].value
+              ) {
+                followersSet.add(f.string_list_data[0].value);
               }
             });
           });
@@ -231,7 +236,7 @@
 
           followingData.relationships_following.forEach((f) => {
             // ======================================================
-            // PERBAIKAN DI SINI: Gunakan f.title
+            // PERBAIKAN: Gunakan f.title
             // ======================================================
             const username = f ? f.title : null;
             const href = (f && f.string_list_data && f.string_list_data[0]) ? f.string_list_data[0].href : "#";
