@@ -87,14 +87,13 @@
         <label
           for="followingFile"
           class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >Choose following.json file (Only 1 file)</label
-        >
+          >Choose following.json files</label >
         <input
           class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
           id="followingFile"
           accept=".json"
           type="file"
-        />
+          multiple />
       </div>
       <div class="mb-2">
         <button
@@ -181,12 +180,12 @@
 
         // 1. Ambil file dari input elements
         const followersFiles = document.getElementById("followersFile").files;
-        const followingFile = document.getElementById("followingFile").files[0];
+        const followingFiles = document.getElementById("followingFile").files; // PERUBAHAN: Menjadi plural
 
         // 2. Validasi input
-        if (followersFiles.length === 0 || !followingFile) {
+        if (followersFiles.length === 0 || followingFiles.length === 0) { // PERUBAHAN: Cek length
           errorElement.textContent =
-            "Please upload both followers files and the following file.";
+            "Please upload both followers and following files.";
           resultList.innerHTML = "";
           totalElement.textContent = "—";
           return;
@@ -197,8 +196,9 @@
           const followersPromises = Array.from(followersFiles).map(readFileAsText);
           const followersJsonStrings = await Promise.all(followersPromises);
 
-          // 4. Baca file following
-          const followingJsonString = await readFileAsText(followingFile);
+          // 4. Baca semua file following (secara paralel)
+          const followingPromises = Array.from(followingFiles).map(readFileAsText); // PERUBAHAN: Logika baru
+          const followingJsonStrings = await Promise.all(followingPromises); // PERUBAHAN: Logika baru
 
           // --- File selesai dibaca, sekarang kita proses datanya ---
 
@@ -207,9 +207,6 @@
           followersJsonStrings.forEach((jsonString) => {
             const data = JSON.parse(jsonString); // data adalah array [...]
             data.forEach((f) => {
-              // ======================================================
-              // PERBAIKAN: Gunakan f.string_list_data[0].value
-              // ======================================================
               if (
                 f &&
                 f.string_list_data &&
@@ -223,31 +220,34 @@
 
           // 6. Proses Following
           const followingList = [];
-          const followingData = JSON.parse(followingJsonString); // data adalah objek { relationships_following: [...] }
+          // PERUBAHAN: Loop melalui setiap file following yang sudah dibaca
+          followingJsonStrings.forEach((jsonString) => {
+            const followingData = JSON.parse(jsonString); // data adalah objek { relationships_following: [...] }
 
-          if (
-            !followingData.relationships_following ||
-            !Array.isArray(followingData.relationships_following)
-          ) {
-            throw new Error(
-              "Invalid following.json structure. 'relationships_following' key not found."
-            );
-          }
+            if (
+              followingData.relationships_following &&
+              Array.isArray(followingData.relationships_following)
+            ) {
+              followingData.relationships_following.forEach((f) => {
+                const username = f ? f.title : null;
+                const href = (f && f.string_list_data && f.string_list_data[0]) ? f.string_list_data[0].href : "#";
 
-          followingData.relationships_following.forEach((f) => {
-            // ======================================================
-            // PERBAIKAN: Gunakan f.title
-            // ======================================================
-            const username = f ? f.title : null;
-            const href = (f && f.string_list_data && f.string_list_data[0]) ? f.string_list_data[0].href : "#";
-
-            if (username) {
-              followingList.push({
-                username: username,
-                href: href,
+                if (username) {
+                  // Tambahkan ke list gabungan
+                  followingList.push({
+                    username: username,
+                    href: href,
+                  });
+                }
               });
+            } else {
+               // Jika salah satu file following punya struktur salah, hentikan
+              throw new Error(
+                "Invalid following.json structure. 'relationships_following' key not found."
+              );
             }
           });
+          
 
           // 7. Bandingkan!
           const nonFollowers = followingList.filter(
