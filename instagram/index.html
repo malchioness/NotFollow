@@ -73,7 +73,6 @@
         <label
           for="followersFile"
           class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          for="file_input"
           >Choose followers.json files</label
         >
         <input
@@ -88,17 +87,15 @@
         <label
           for="followingFile"
           class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          for="file_input"
-          >Choose following.json files</label
+          >Choose following.json file (Only 1 file)</label
         >
         <input
           class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
           id="followingFile"
           accept=".json"
           type="file"
-          multiple
         />
-      </div>
+        </div>
       <div class="mb-2">
         <button
           type="button"
@@ -147,44 +144,7 @@
     </div>
 
     <footer class="bg-white rounded-lg shadow m-4 dark:bg-gray-800 mt-8">
-      <div
-        class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between"
-      >
-        <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400"
-          >Copyright © 2025 by
-          <a
-            href="https://github.com/malchioness"
-            target="_blank"
-            class="font-semibold hover:underline"
-            >malchioness</a
-          >
-        </span>
-        <ul
-          class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0"
-        >
-          <li class="flex items-center">
-            <svg
-              class="w-4 h-4 me-2 -ms-1 text-[#626890]"
-              aria-hidden="true"
-              focusable="false"
-              data-prefix="fab"
-              data-icon="ethereum"
-              role="img"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 320 512"
-            >
-              <path
-                fill="currentColor"
-                d="M311.9 260.8L160 353.6 8 260.8 160 0l151.9 260.8zM160 383.4L8 290.6 160 512l152-221.4-152 92.8z"
-              ></path>
-            </svg>
-            <span
-              >Support with Ethereum:
-            </span>
-          </li>
-        </ul>
-      </div>
-    </footer>
+      </footer>
 
     <div
       id="howToModal"
@@ -192,154 +152,80 @@
       aria-hidden="true"
       class="fixed inset-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto h-[calc(100%-1rem)] max-h-full"
     >
-      <div class="relative w-full max-w-3xl max-h-full mx-auto">
-        <div class="relative bg-white rounded-lg shadow-lg dark:bg-gray-800">
-          <div
-            class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 rounded-t"
-          >
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-              How to Get JSON Files
-            </h3>
-            <button
-              type="button"
-              class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
-              data-modal-hide="howToModal"
-            >
-              <svg
-                aria-hidden="true"
-                class="w-5 h-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-              <span class="sr-only">Close modal</span>
-            </button>
-          </div>
-          <div class="p-6 space-y-6">
-            <p
-              class="text-base leading-relaxed text-gray-500 dark:text-gray-400"
-            >
-              Follow these steps to download your Instagram data:
-            </p>
-            <ol
-              class="list-decimal list-inside text-base leading-relaxed text-gray-500 dark:text-gray-400 space-y-2"
-            >
-              <li>
-                Go to your Instagram profile and click on the menu icon (three
-                horizontal lines).
-              </li>
-              <li>
-                Navigate to "Accounts Center", then click "Your information and
-                permissions".
-              </li>
-              <li>
-                Click "Download your information", then click "Download or
-                transfer information".
-              </li>
-              <li>
-                Select the profiles you’d like to download information from.
-              </li>
-              <li>Click "Next", then select "Some of your information".</li>
-              <li>Choose "Followers and Following" and click "Next".</li>
-              <li>Select "Download to device".</li>
-              <li>
-                Choose the file options:
-                <ul class="list-disc list-inside pl-5 space-y-1">
-                  <li>Date range: All time</li>
-                  <li>Notify: Your email address</li>
-                  <li>Format: JSON</li>
-                  <li>Media quality: Low</li>
-                </ul>
-              </li>
-              <li>Click "Create files".</li>
-              <li>
-                Once you receive the download completion email, click the link
-                to download the ZIP file.
-              </li>
-              <li>
-                Extract the ZIP file and locate the followers.json and
-                following.json files.
-              </li>
-            </ol>
-          </div>
-          <div
-            class="flex items-center justify-end p-4 border-t border-gray-200 dark:border-gray-700 rounded-b"
-          >
-            <button
-              data-modal-hide="howToModal"
-              type="button"
-              class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:hover:text-white"
-            >
-              Close
-            </button>
-          </div>
-        </div>
       </div>
-    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.6/lib/index.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
     <script>
       let followersData = [];
-      let followingData = [];
+      let followingData = null; // <-- PERBAIKAN: Diubah dari array [] menjadi null
 
       document
         .getElementById("followersFile")
         .addEventListener("change", function (event) {
-          followersData = []; // <-- INI PERBAIKANNYA
+          followersData = []; // Reset array setiap kali file baru dipilih
           const files = event.target.files;
+          if (!files.length) return;
+
+          const readers = [];
           for (const file of files) {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-              try {
-                const parsedData = JSON.parse(event.target.result);
-                followersData.push(parsedData);
-                console.log("Followers Data:", followersData);
-                document.getElementById("error-message").textContent = "";
-              } catch (error) {
-                console.error("Error parsing followers file:", error);
-                document.getElementById("error-message").textContent =
-                  "Error parsing followers file. Please make sure it is in the correct format.";
-              }
-            };
-            reader.readAsText(file);
+            readers.push(
+              new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  try {
+                    const parsedData = JSON.parse(e.target.result);
+                    resolve(parsedData);
+                  } catch (err) {
+                    reject(err);
+                  }
+                };
+                reader.onerror = reject;
+                reader.readAsText(file);
+              })
+            );
           }
+
+          Promise.all(readers)
+            .then((results) => {
+              followersData = results; // results adalah array dari [datafile1, datafile2, ...]
+              console.log("Followers Data:", followersData);
+              document.getElementById("error-message").textContent = "";
+            })
+            .catch((error) => {
+              console.error("Error parsing one or more followers files:", error);
+              document.getElementById("error-message").textContent =
+                "Error parsing followers file. Please make sure it is in the correct format.";
+            });
         });
 
       document
         .getElementById("followingFile")
         .addEventListener("change", function (event) {
-          followingData = []; // <-- INI PERBAIKANNYA
-          const files = event.target.files;
-          for (const file of files) {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-              try {
-                const parsedData = JSON.parse(event.target.result);
-                followingData.push(parsedData);
-                console.log("Following Data:", followingData);
-                document.getElementById("error-message").textContent = "";
-              } catch (error) {
-                console.error("Error parsing following file:", error);
-                document.getElementById("error-message").textContent =
-                  "Error parsing following file. Please make sure it is in the correct format.";
-              }
-            };
-            reader.readAsText(file);
-          }
+          followingData = null; // Reset data
+          const file = event.target.files[0]; // <-- PERBAIKAN: Hanya ambil file PERTAMA
+          if (!file) return; // Jika pengguna batal memilih file
+
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            try {
+              followingData = JSON.parse(event.target.result); // <-- PERBAIKAN: Langsung simpan objeknya
+              console.log("Following Data:", followingData);
+              document.getElementById("error-message").textContent = "";
+            } catch (error) {
+              console.error("Error parsing following file:", error);
+              document.getElementById("error-message").textContent =
+                "Error parsing following file. Please make sure it is in the correct format.";
+            }
+          };
+          reader.readAsText(file);
         });
 
       function processFiles() {
-        if (!followersData.length || !followingData.length) {
+        if (!followersData.length || !followingData) {
           document.getElementById("error-message").textContent =
-            "Invalid JSON format. Please upload valid files.";
-          console.error("Invalid JSON format:", {
+            "Please upload both followers files and the following file.";
+          console.error("Invalid data:", {
             followersData,
             followingData,
           });
@@ -347,24 +233,48 @@
         }
 
         const followersSet = new Set();
-        followersData.forEach((data) => {
-          data.forEach((f) => {
-            if (
-              f.string_list_data &&
-              f.string_list_data[0] &&
-              f.string_list_data[0].value
-            ) {
-              followersSet.add(f.string_list_data[0].value);
-            } else {
-              console.error("Invalid follower entry:", f);
-            }
+        try {
+          followersData.forEach((data) => {
+            // data adalah isi satu file (yang merupakan array)
+            data.forEach((f) => {
+              if (
+                f && // <-- PERBAIKAN: Cek jika f tidak null
+                f.string_list_data &&
+                f.string_list_data[0] &&
+                f.string_list_data[0].value
+              ) {
+                followersSet.add(f.string_list_data[0].value);
+              } else {
+                // Jangan error jika null, cukup log jika perlu
+                if (f) {
+                  console.warn("Invalid follower entry structure:", f);
+                }
+              }
+            });
           });
-        });
+        } catch (e) {
+          console.error("Error processing followers list:", e);
+          document.getElementById("error-message").textContent =
+            "Error processing followers file. Make sure you uploaded the correct files.";
+          return;
+        }
 
         const followingList = [];
-        followingData.forEach((data) => {
-          data.relationships_following.forEach((f) => {
+        try {
+          // PERBAIKAN: followingData sekarang adalah OBJEK, bukan array
+          // Pastikan 'relationships_following' ada
+          if (
+            !followingData.relationships_following ||
+            !Array.isArray(followingData.relationships_following)
+          ) {
+            throw new Error(
+              "Invalid following.json structure. 'relationships_following' key not found or not an array."
+            );
+          }
+
+          followingData.relationships_following.forEach((f) => {
             if (
+              f && // <-- PERBAIKAN: Cek jika f tidak null
               f.string_list_data &&
               f.string_list_data[0] &&
               f.string_list_data[0].value
@@ -374,10 +284,17 @@
                 href: f.string_list_data[0].href,
               });
             } else {
-              console.error("Invalid following entry:", f);
+              if (f) {
+                console.warn("Invalid following entry structure:", f);
+              }
             }
           });
-        });
+        } catch (e) {
+          console.error("Error processing following list:", e);
+          document.getElementById("error-message").textContent =
+            "Error processing following file. Make sure you uploaded the correct following.json file.";
+          return;
+        }
 
         const nonFollowers = followingList.filter(
           (f) => !followersSet.has(f.username)
@@ -437,6 +354,7 @@
         toggleChecked(checkbox, index);
       }
 
+      // ... (Kode theme toggle Anda sama, tidak perlu diubah) ...
       if (
         localStorage.getItem("color-theme") === "dark" ||
         (!("color-theme" in localStorage) &&
